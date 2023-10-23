@@ -1,0 +1,23 @@
+{
+  "name": "aiip_p7_dbapi",
+  "version": "1.0.0",
+  "description": "A new Flutter project.",
+  "main": "server/server.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server/server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "http": "^0.0.1-security",
+    "nodemon": "^3.0.1",
+    "pg": "^8.11.3"
+  }
+}
