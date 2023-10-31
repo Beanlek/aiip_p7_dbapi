@@ -8,7 +8,7 @@ import 'package:bcrypt/bcrypt.dart';
 import 'package:http/http.dart' as http;
 
 import 'util.dart';
-import 'model/user_details.dart';
+import 'model/van_user.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,18 +39,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int section = 0;
   String serverResponse = 'Server response';
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _newEmailController = TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Text(section.toString()),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 80, 20, 80),
               child: Text(
@@ -65,42 +74,102 @@ class _MyHomePageState extends State<MyHomePage> {
                   _makeGetRequest();
                 }),
             spaceVertical(15),
-            Form(
-                child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                  child: TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(hintText: 'Email'),
-                  ),
-                ),
-                spaceVertical(15),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                  child: TextFormField(
-                    obscureText: true,
-                    controller: _passwordController,
-                    decoration: InputDecoration(hintText: 'Password'),
-                  ),
-                ),
-                spaceVertical(15),
-                ElevatedButton(
-                    child: Text('Log in'),
-                    onPressed: () {
-                      String email = _emailController.text.trim();
-                      String password = _passwordController.text.trim();
-                      _logIn(email, password);
-                    }),
-              ],
-            )),
+            ElevatedButton(
+                child: Text('Get all outlet'),
+                onPressed: () {
+                  _getAllOutlet();
+                }),
             spaceVertical(15),
-            // ElevatedButton(
-            //     child: Text('Get user details'),
-            //     onPressed: () {
-            //       _getUserDetails();
-            //     }),
-            // spaceVertical(15),
+            section == 0
+                ? Form(
+                    child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: TextFormField(
+                          controller: _emailController,
+                          decoration: InputDecoration(hintText: 'Email'),
+                        ),
+                      ),
+                      spaceVertical(15),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: TextFormField(
+                          obscureText: true,
+                          controller: _passwordController,
+                          decoration: InputDecoration(hintText: 'Password'),
+                        ),
+                      ),
+                      spaceVertical(15),
+                      ElevatedButton(
+                          child: Text('Log in'),
+                          onPressed: () {
+                            String email = _emailController.text.trim();
+                            String password = _passwordController.text.trim();
+                            _logIn(email, password);
+                          }),
+                    ],
+                  ))
+                : Form(
+                    child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: TextFormField(
+                          controller: _firstNameController,
+                          decoration: InputDecoration(hintText: 'First Name'),
+                        ),
+                      ),
+                      spaceVertical(15),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: TextFormField(
+                          controller: _lastNameController,
+                          decoration: InputDecoration(hintText: 'Last Name'),
+                        ),
+                      ),
+                      spaceVertical(15),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: TextFormField(
+                          controller: _addressController,
+                          decoration: InputDecoration(hintText: 'Address'),
+                        ),
+                      ),
+                      spaceVertical(15),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: TextFormField(
+                          controller: _newEmailController,
+                          decoration: InputDecoration(hintText: 'Email'),
+                        ),
+                      ),
+                      spaceVertical(15),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: TextFormField(
+                          obscureText: true,
+                          controller: _newPasswordController,
+                          decoration: InputDecoration(hintText: 'Password'),
+                        ),
+                      ),
+                      spaceVertical(15),
+                      ElevatedButton(
+                          child: Text('Register Van User'),
+                          onPressed: () {
+                            String firstName = _firstNameController.text.trim();
+                            String lastName = _lastNameController.text.trim();
+                            String address = _addressController.text.trim();
+                            String newEmail = _newEmailController.text.trim();
+                            String newPassword =
+                                _newPasswordController.text.trim();
+
+                            _registerVanUser(firstName, lastName, address,
+                                newEmail, newPassword);
+                          }),
+                    ],
+                  )),
+            spaceVertical(15),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -125,18 +194,42 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: ElevatedButton(
-        child: Icon(Icons.delete),
-        onPressed: () {
-          _clearText();
-        },
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton(
+            child: Icon(Icons.delete),
+            onPressed: () {
+              _clearText();
+            },
+          ),
+          spaceHorizontal(12),
+          ElevatedButton(
+            child: Icon(Icons.change_circle_outlined),
+            onPressed: () {
+              setState(() {
+                if (section != 0) {
+                  section = 0;
+                  return;
+                }
+                if (section != 1) {
+                  section = 1;
+                  return;
+                }
+              });
+            },
+          ),
+        ],
       ),
     );
   }
 
   _makeGetRequest() async {
-    final url = Uri.parse('${_domainName()}/get_user_details');
-    var response = await http.get(url);
+    final url = Uri.parse('${_domainName()}/get_van_user');
+    var response = await http.get(
+      url,
+      headers: {"Content-Type": "application/json"},
+    );
     setState(() {
       serverResponse = response.body;
       UserPreferences.setJson(serverResponse);
@@ -144,13 +237,18 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  // _getUserDetails() async {
-  //   var url = Uri.https(_domainName(), '/get_user_details');
-  //   var response = await http.get(url);
-  //   setState(() {
-  //     serverResponse = 'response.body: ${response.body}';
-  //   });
-  // }
+  _getAllOutlet() async {
+    final url = Uri.parse('${_domainName()}/get_outlet');
+    var response = await http.get(
+      url,
+      headers: {"Content-Type": "application/json"},
+    );
+    setState(() {
+      serverResponse = response.body;
+      UserPreferences.setJson(serverResponse);
+      // List<dynamic> list = json.decode(serverResponse);
+    });
+  }
 
   _clearText() {
     setState(() {
@@ -159,13 +257,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   String _domainName() {
-    // if (Platform.isAndroid)
     return 'http://47.250.10.195:3030';
+    // return 'http://localhost:8080';
   }
 
   _logIn(String email, String password) async {
-    final url = Uri.parse('${_domainName()}/get_user_details');
-    var response = await http.get(url);
+    final url = Uri.parse('${_domainName()}/get_van_user');
+    var response = await http.get(
+      url,
+      headers: {"Content-Type": "application/json"},
+    );
     String thisJson = response.body;
     // print('---Pass 1---');
 
@@ -178,7 +279,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // print('---Pass 2---');
     while (i < listJson.length) {
       // print('---Pass 3---');
-      var user = UserDetails.fromJson(listJson[i]);
+      var user = VanUser.fromJson(listJson[i]);
       e = 'Wrong email';
 
       if (user.email == email) {
@@ -197,6 +298,11 @@ class _MyHomePageState extends State<MyHomePage> {
             UserPreferences.setUser(user.id);
           });
           error = false;
+
+          final lastLoginUrl = Uri.parse('${_domainName()}/update_last_login');
+          http.post(lastLoginUrl,
+              // headers: {"Content-Type": "application/json"},
+              body: {"van_user_id": user.id});
           break;
         }
       }
@@ -212,5 +318,32 @@ class _MyHomePageState extends State<MyHomePage> {
         serverResponse = e;
       });
     }
+  }
+
+  _registerVanUser(String firstName, String lastName, String address,
+      String newEmail, String newPassword) {
+    final url = Uri.parse('${_domainName()}/register_mobile/register_van_user');
+    http.post(url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "first_name": firstName,
+          "last_name": lastName,
+          "address": address,
+          "email": newEmail,
+          "password": newPassword,
+        }));
+
+    setState(() {
+      serverResponse = '''
+{
+  "first_name": $firstName,
+  "last_name": $lastName,
+  "address": $address,
+  "email": $newEmail,
+  "password": $newPassword,
+}
+
+''';
+    });
   }
 }

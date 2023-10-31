@@ -9,9 +9,6 @@ getUserDetailsRouter.get('/', async (req,res) => {
         const query = `
         select * from user_details ud;
         `;
-        // const query = `
-        // select * from user_details ud where email='imran@gmail.com';
-        // `;
 
         await pool.query(query, (err,ress) => {
             if (err) {
